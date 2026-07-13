@@ -2,7 +2,9 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    # `main` is the long-term deploy branch. The feature branch is included so
+    # the site can go live before the first merge — drop it once merged.
+    branches: [main, claude/supplement-supplier-marketplace-55qpr7]
   workflow_dispatch:
 
 permissions:
