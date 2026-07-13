@@ -11,6 +11,7 @@ import type {
 } from "@/lib/types";
 import { scoreSupplier } from "@/lib/scoring";
 import { ScoreBadge } from "./ScoreBadge";
+import { RatingBadge } from "./RatingBadge";
 
 const REGIONS: Region[] = [
   "North America",
@@ -50,7 +51,7 @@ const CAPS: Capability[] = [
   "Fulfillment / 3PL",
 ];
 
-type SortKey = "score" | "moq" | "leadtime";
+type SortKey = "score" | "rating" | "moq" | "leadtime";
 
 export function Directory({ suppliers }: { suppliers: Supplier[] }) {
   const [query, setQuery] = useState("");
@@ -60,6 +61,7 @@ export function Directory({ suppliers }: { suppliers: Supplier[] }) {
   const [caps, setCaps] = useState<Set<Capability>>(new Set());
   const [maxMoq, setMaxMoq] = useState<number>(0);
   const [beginnerOnly, setBeginnerOnly] = useState(false);
+  const [ratedOnly, setRatedOnly] = useState(false);
   const [sort, setSort] = useState<SortKey>("score");
 
   const scored = useMemo(
@@ -77,6 +79,7 @@ export function Directory({ suppliers }: { suppliers: Supplier[] }) {
       }
       if (region && s.region !== region) return false;
       if (beginnerOnly && !s.beginnerFriendly) return false;
+      if (ratedOnly && !s.rating) return false;
       if (maxMoq > 0 && s.moqUnits > maxMoq) return false;
       for (const c of categories) if (!s.categories.includes(c)) return false;
       for (const c of certs) if (!s.certifications.includes(c)) return false;
@@ -86,11 +89,28 @@ export function Directory({ suppliers }: { suppliers: Supplier[] }) {
 
     rows = rows.sort((a, b) => {
       if (sort === "score") return b.score.total - a.score.total;
+      if (sort === "rating") {
+        // Rated suppliers first, best rating on top; unrated sink to the bottom.
+        const ra = a.supplier.rating?.value ?? -1;
+        const rb = b.supplier.rating?.value ?? -1;
+        return rb - ra;
+      }
       if (sort === "moq") return a.supplier.moqUnits - b.supplier.moqUnits;
       return a.supplier.leadTimeWeeks - b.supplier.leadTimeWeeks;
     });
     return rows;
-  }, [scored, query, region, categories, certs, caps, maxMoq, beginnerOnly, sort]);
+  }, [
+    scored,
+    query,
+    region,
+    categories,
+    certs,
+    caps,
+    maxMoq,
+    beginnerOnly,
+    ratedOnly,
+    sort,
+  ]);
 
   function toggle<T>(set: Set<T>, value: T, apply: (s: Set<T>) => void) {
     const next = new Set(set);
@@ -104,7 +124,8 @@ export function Directory({ suppliers }: { suppliers: Supplier[] }) {
     certs.size +
     caps.size +
     (maxMoq > 0 ? 1 : 0) +
-    (beginnerOnly ? 1 : 0);
+    (beginnerOnly ? 1 : 0) +
+    (ratedOnly ? 1 : 0);
 
   function reset() {
     setQuery("");
@@ -114,6 +135,7 @@ export function Directory({ suppliers }: { suppliers: Supplier[] }) {
     setCaps(new Set());
     setMaxMoq(0);
     setBeginnerOnly(false);
+    setRatedOnly(false);
   }
 
   return (
@@ -159,6 +181,15 @@ export function Directory({ suppliers }: { suppliers: Supplier[] }) {
               className="accent-brand-500"
             />
             Beginner-friendly only
+          </label>
+          <label className="flex cursor-pointer items-center gap-2 text-sm text-slate-300">
+            <input
+              type="checkbox"
+              checked={ratedOnly}
+              onChange={(e) => setRatedOnly(e.target.checked)}
+              className="accent-brand-500"
+            />
+            Has public rating only
           </label>
           <div className="pt-1">
             <label className="mb-1.5 block text-xs font-medium text-slate-400">
@@ -227,6 +258,9 @@ export function Directory({ suppliers }: { suppliers: Supplier[] }) {
             <option value="score" className="bg-ink">
               Sort: Score
             </option>
+            <option value="rating" className="bg-ink">
+              Sort: Customer rating
+            </option>
             <option value="moq" className="bg-ink">
               Sort: Lowest MOQ
             </option>
@@ -265,6 +299,14 @@ export function Directory({ suppliers }: { suppliers: Supplier[] }) {
                   <p className="mt-2 line-clamp-2 text-sm text-slate-300">
                     {s.summary}
                   </p>
+                  <div className="mt-2">
+                    <RatingBadge rating={s.rating} />
+                  </div>
+                  {s.caution && (
+                    <p className="mt-2 inline-flex items-start gap-1.5 rounded-md border border-amber-400/20 bg-amber-400/5 px-2 py-1 text-[11px] text-amber-200/80">
+                      ⚠ {s.caution}
+                    </p>
+                  )}
                 </div>
                 <ScoreBadge score={score} />
               </div>

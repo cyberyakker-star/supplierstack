@@ -6,6 +6,7 @@ import { Directory } from "@/components/Directory";
 export default function Home() {
   const total = suppliers.length;
   const beginner = suppliers.filter((s) => s.beginnerFriendly).length;
+  const rated = suppliers.filter((s) => s.rating).length;
   const avgScore = Math.round(
     suppliers.reduce((a, s) => a + scoreSupplier(s).total, 0) / total,
   );
@@ -30,6 +31,7 @@ export default function Home() {
         <div className="mt-6 flex flex-wrap gap-6 text-sm">
           <Metric value={total} label="Suppliers vetted" />
           <Metric value={beginner} label="New-seller friendly" />
+          <Metric value={rated} label="With public ratings" />
           <Metric value={avgScore} label="Avg SupplierStack Score" />
         </div>
         <div className="mt-6 flex gap-3">
