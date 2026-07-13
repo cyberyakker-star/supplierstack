@@ -58,6 +58,9 @@ export interface Supplier {
   region: Region;
   foundedYear: number;
   website: string;
+  /** Public contact email if verified. When absent, the RFI tool suggests one
+   * from the domain that the user can review/correct before sending. */
+  contactEmail?: string;
   summary: string;
   categories: ProductCategory[];
   capabilities: Capability[];

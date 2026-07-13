@@ -12,6 +12,7 @@ import type {
 import { scoreSupplier } from "@/lib/scoring";
 import { ScoreBadge } from "./ScoreBadge";
 import { RatingBadge } from "./RatingBadge";
+import { ShortlistButton } from "./ShortlistButton";
 
 const REGIONS: Region[] = [
   "North America",
@@ -315,8 +316,8 @@ export function Directory({ suppliers }: { suppliers: Supplier[] }) {
                 <Stat label="MOQ" value={`${s.moqUnits.toLocaleString()} units`} />
                 <Stat label="Lead time" value={`~${s.leadTimeWeeks} wks`} />
                 <Stat label="Formats" value={`${s.categories.length}`} />
-                <div className="ml-auto flex flex-wrap gap-1.5">
-                  {s.certifications.slice(0, 4).map((c) => (
+                <div className="ml-auto flex flex-wrap items-center gap-1.5">
+                  {s.certifications.slice(0, 3).map((c) => (
                     <span
                       key={c}
                       className="rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[11px] text-slate-300"
@@ -324,6 +325,7 @@ export function Directory({ suppliers }: { suppliers: Supplier[] }) {
                       {c}
                     </span>
                   ))}
+                  <ShortlistButton slug={s.slug} />
                 </div>
               </div>
             </Link>

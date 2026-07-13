@@ -83,8 +83,8 @@ export default function Methodology() {
         <ul className="mt-2 list-disc space-y-1 pl-5">
           <li>Verified supplier submissions with uploaded certifications.</li>
           <li>Real MOQ / price-per-unit ranges gathered from brand reviews.</li>
-          <li>Saved shortlists and side-by-side supplier comparison.</li>
-          <li>Outreach templates and a request-a-quote workflow.</li>
+          <li>Side-by-side supplier comparison.</li>
+          <li>One-click send (via an email service) instead of your own mail app.</li>
           <li>Expansion beyond supplements once the vetting model is proven.</li>
         </ul>
       </div>

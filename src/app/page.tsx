@@ -26,7 +26,8 @@ export default function Home() {
           filterable directory of supplement contract manufacturers and
           private-label suppliers worldwide — scored on compliance, track record
           and how easily a <span className="text-white">new seller</span> can
-          actually work with them.
+          actually work with them. Shortlist your favorites and{" "}
+          <span className="text-white">request info from all of them at once</span>.
         </p>
         <div className="mt-6 flex flex-wrap gap-6 text-sm">
           <Metric value={total} label="Suppliers vetted" />

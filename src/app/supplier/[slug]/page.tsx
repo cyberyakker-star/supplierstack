@@ -4,6 +4,7 @@ import { suppliers } from "@/data/suppliers";
 import { scoreSupplier } from "@/lib/scoring";
 import { ScoreBadge } from "@/components/ScoreBadge";
 import { RatingBadge } from "@/components/RatingBadge";
+import { ShortlistButton } from "@/components/ShortlistButton";
 
 export function generateStaticParams() {
   return suppliers.map((s) => ({ slug: s.slug }));
@@ -57,11 +58,12 @@ export default function SupplierPage({
         )}
 
         <div className="mt-6 flex flex-wrap gap-3">
+          <ShortlistButton slug={supplier.slug} variant="detail" />
           <a
             href={supplier.website}
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-xl bg-brand-500 px-4 py-2 text-sm font-semibold text-ink hover:bg-brand-400"
+            className="rounded-xl border border-white/15 px-4 py-2 text-sm font-semibold text-white hover:bg-white/5"
           >
             Visit website ↗
           </a>
