@@ -43,6 +43,29 @@ export default function Methodology() {
         body="Whether MOQ, lead times and contact paths are knowable up front. Suppliers who make their terms discoverable save you weeks of back-and-forth."
       />
 
+      <div className="card p-5">
+        <h2 className="font-semibold text-white">
+          Customer ratings vs. the Score
+        </h2>
+        <p className="mt-2 text-sm text-slate-300">
+          The SupplierStack Score and the customer rating are two different
+          signals shown side by side. The Score is our structured vetting of
+          compliance and fit; the rating is real customer feedback pulled from
+          public platforms (Trustpilot, Google/Birdeye). We only show{" "}
+          <span className="text-white">customer</span> reviews — employee reviews
+          from sites like Glassdoor are excluded because they say nothing about
+          how a supplier treats the brands it produces for.
+        </p>
+        <p className="mt-2 text-sm text-slate-300">
+          Many B2B manufacturers simply don&apos;t collect public reviews, so a{" "}
+          <span className="text-white">&ldquo;No public rating&rdquo;</span> badge
+          is common and is <span className="text-white">not</span> a negative —
+          it just means the crowd hasn&apos;t weighed in. Where we find a genuine
+          red flag (bankruptcy, unresolved disputes), we surface it as a warning
+          on the supplier.
+        </p>
+      </div>
+
       <div className="rounded-2xl border border-amber-400/20 bg-amber-400/5 p-5 text-sm text-amber-200/80">
         <p className="font-semibold text-amber-200">On the data</p>
         <p className="mt-2">
@@ -60,8 +83,8 @@ export default function Methodology() {
         <ul className="mt-2 list-disc space-y-1 pl-5">
           <li>Verified supplier submissions with uploaded certifications.</li>
           <li>Real MOQ / price-per-unit ranges gathered from brand reviews.</li>
-          <li>Saved shortlists and side-by-side supplier comparison.</li>
-          <li>Outreach templates and a request-a-quote workflow.</li>
+          <li>Side-by-side supplier comparison.</li>
+          <li>One-click send (via an email service) instead of your own mail app.</li>
           <li>Expansion beyond supplements once the vetting model is proven.</li>
         </ul>
       </div>

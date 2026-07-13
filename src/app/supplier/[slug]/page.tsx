@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { suppliers } from "@/data/suppliers";
 import { scoreSupplier } from "@/lib/scoring";
 import { ScoreBadge } from "@/components/ScoreBadge";
+import { RatingBadge } from "@/components/RatingBadge";
+import { ShortlistButton } from "@/components/ShortlistButton";
 
 export function generateStaticParams() {
   return suppliers.map((s) => ({ slug: s.slug }));
@@ -42,14 +44,26 @@ export default function SupplierPage({
           <ScoreBadge score={score} />
         </div>
 
+        <div className="mt-3">
+          <RatingBadge rating={supplier.rating} />
+        </div>
+
         <p className="mt-4 max-w-2xl text-slate-300">{supplier.summary}</p>
 
+        {supplier.caution && (
+          <p className="mt-4 flex items-start gap-2 rounded-lg border border-amber-400/30 bg-amber-400/10 p-3 text-sm text-amber-200">
+            <span aria-hidden>⚠</span>
+            <span>{supplier.caution}</span>
+          </p>
+        )}
+
         <div className="mt-6 flex flex-wrap gap-3">
+          <ShortlistButton slug={supplier.slug} variant="detail" />
           <a
             href={supplier.website}
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-xl bg-brand-500 px-4 py-2 text-sm font-semibold text-ink hover:bg-brand-400"
+            className="rounded-xl border border-white/15 px-4 py-2 text-sm font-semibold text-white hover:bg-white/5"
           >
             Visit website ↗
           </a>

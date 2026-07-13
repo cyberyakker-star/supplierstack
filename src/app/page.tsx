@@ -6,6 +6,7 @@ import { Directory } from "@/components/Directory";
 export default function Home() {
   const total = suppliers.length;
   const beginner = suppliers.filter((s) => s.beginnerFriendly).length;
+  const rated = suppliers.filter((s) => s.rating).length;
   const avgScore = Math.round(
     suppliers.reduce((a, s) => a + scoreSupplier(s).total, 0) / total,
   );
@@ -25,11 +26,13 @@ export default function Home() {
           filterable directory of supplement contract manufacturers and
           private-label suppliers worldwide — scored on compliance, track record
           and how easily a <span className="text-white">new seller</span> can
-          actually work with them.
+          actually work with them. Shortlist your favorites and{" "}
+          <span className="text-white">request info from all of them at once</span>.
         </p>
         <div className="mt-6 flex flex-wrap gap-6 text-sm">
           <Metric value={total} label="Suppliers vetted" />
           <Metric value={beginner} label="New-seller friendly" />
+          <Metric value={rated} label="With public ratings" />
           <Metric value={avgScore} label="Avg SupplierStack Score" />
         </div>
         <div className="mt-6 flex gap-3">

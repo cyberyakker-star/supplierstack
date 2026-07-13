@@ -23,23 +23,45 @@ See `src/lib/scoring.ts` for the exact rubric.
 
 ## Features
 
-- Filterable directory: region, product format, certifications, capabilities, max MOQ, beginner-friendly.
-- Full-text search and sort by score / lowest MOQ / fastest lead time.
+- 44+ real supplement manufacturers across North America, Europe, Asia, Oceania and South America.
+- Filterable directory: region, product format, certifications, capabilities, max MOQ, beginner-friendly, has-public-rating.
+- Full-text search and sort by score / customer rating / lowest MOQ / fastest lead time.
+- **Customer ratings** pulled from public sources (Trustpilot, Google/Birdeye), with an explicit "No public rating" badge where none exists, and red-flag **cautions** (e.g. bankruptcy) surfaced per supplier.
 - Per-supplier detail pages with a score breakdown and sourcing notes.
 - "How we vet" methodology page.
 
+### Ratings policy
+
+`rating` is only populated from **customer** reviews. Employee reviews
+(Glassdoor/Indeed) are excluded. No rating found → `null` → "No public rating"
+in the UI. Absence of reviews is not a negative — most B2B manufacturers don't
+collect them.
+
 ## Tech stack
 
-Next.js 14 (App Router) · TypeScript · Tailwind CSS. Supplier data is a typed
-seed list in `src/data/suppliers.ts` — no database required yet.
+Next.js 14 (App Router, static export) · TypeScript · Tailwind CSS. Supplier
+data is a typed seed list in `src/data/suppliers.ts` — no database required yet.
 
 ## Getting started
 
 ```bash
 npm install
 npm run dev      # http://localhost:3000
-npm run build    # production build (all pages statically generated)
+npm run build    # static export to ./out
 ```
+
+## Deployment
+
+The app is a fully static site (`output: "export"`). A GitHub Actions workflow
+(`.github/workflows/deploy.yml`) builds and publishes to **GitHub Pages** on
+every push to `main`.
+
+**One-time setup:** in the GitHub repo, go to **Settings → Pages → Build and
+deployment → Source** and select **GitHub Actions**. After that, each merge to
+`main` publishes automatically to `https://<user>.github.io/supplierstack/`.
+
+Prefer Vercel? Import the repo at vercel.com — it needs no config (remove
+`output: "export"` if you later add server features).
 
 ## Data disclaimer
 

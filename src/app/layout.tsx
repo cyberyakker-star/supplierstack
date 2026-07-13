@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import "./globals.css";
+import { ShortlistProvider } from "@/components/shortlist";
+import { ShortlistNav } from "@/components/ShortlistNav";
 
 export const metadata: Metadata = {
   title: "SupplierStack — Vetted supplement suppliers for ecom brands",
@@ -16,6 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <ShortlistProvider>
         <header className="sticky top-0 z-30 border-b border-white/10 bg-ink/80 backdrop-blur">
           <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
             <Link href="/" className="flex items-center gap-2">
@@ -26,16 +29,17 @@ export default function RootLayout({
                 Supplier<span className="text-brand-400">Stack</span>
               </span>
             </Link>
-            <nav className="flex items-center gap-5 text-sm">
+            <nav className="flex items-center gap-3 text-sm sm:gap-5">
               <Link href="/" className="text-slate-300 hover:text-white">
                 Directory
               </Link>
               <Link
                 href="/methodology"
-                className="text-slate-300 hover:text-white"
+                className="hidden text-slate-300 hover:text-white sm:inline"
               >
                 How we vet
               </Link>
+              <ShortlistNav />
             </nav>
           </div>
         </header>
@@ -50,6 +54,7 @@ export default function RootLayout({
             </p>
           </div>
         </footer>
+        </ShortlistProvider>
       </body>
     </html>
   );
