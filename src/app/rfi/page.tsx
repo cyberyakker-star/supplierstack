@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { suppliers } from "@/data/suppliers";
 import type { Supplier } from "@/lib/types";
@@ -58,6 +58,7 @@ export default function RfiPage() {
   const [emails, setEmails] = useState<Record<string, string>>({});
   const [fileName, setFileName] = useState<string>("");
   const [copied, setCopied] = useState(false);
+  const [copiedEmails, setCopiedEmails] = useState(false);
 
   // Restore saved requirements.
   useEffect(() => {
@@ -138,19 +139,54 @@ export default function RfiPage() {
     .map((s) => emails[s.slug]?.trim())
     .filter(Boolean) as string[];
 
-  const mailto = useMemo(() => {
-    const params = new URLSearchParams();
-    if (recipientList.length) params.set("bcc", recipientList.join(","));
-    params.set("subject", subject);
-    params.set("body", body);
-    // Space-encoding: URLSearchParams uses "+"; mail clients want %20.
-    const qs = params.toString().replace(/\+/g, "%20");
-    const to = req.contactEmail ? encodeURIComponent(req.contactEmail) : "";
-    return `mailto:${to}?${qs}`;
-  }, [recipientList, subject, body, req.contactEmail]);
+  const buildMailto = useCallback(
+    (bccList: string[]) => {
+      const params = new URLSearchParams();
+      if (bccList.length) params.set("bcc", bccList.join(","));
+      params.set("subject", subject);
+      params.set("body", body);
+      // Space-encoding: URLSearchParams uses "+"; mail clients want %20.
+      const qs = params.toString().replace(/\+/g, "%20");
+      const to = req.contactEmail ? encodeURIComponent(req.contactEmail) : "";
+      return `mailto:${to}?${qs}`;
+    },
+    [subject, body, req.contactEmail],
+  );
+
+  // Email clients truncate long mailto: links, so split a big shortlist into
+  // as many drafts as needed to stay under the limit. Small lists = one draft.
+  const MAILTO_LIMIT = 1600;
+  const batches = useMemo(() => {
+    const baseLen = buildMailto([]).length;
+    const out: string[][] = [];
+    let cur: string[] = [];
+    let curLen = baseLen;
+    for (const e of recipientList) {
+      const add = encodeURIComponent(e).length + 3; // comma + encoding overhead
+      if (cur.length && curLen + add > MAILTO_LIMIT) {
+        out.push(cur);
+        cur = [];
+        curLen = baseLen;
+      }
+      cur.push(e);
+      curLen += add;
+    }
+    if (cur.length) out.push(cur);
+    return out;
+  }, [recipientList, buildMailto]);
+
+  async function copyEmails() {
+    try {
+      await navigator.clipboard.writeText(recipientList.join(", "));
+      setCopiedEmails(true);
+      setTimeout(() => setCopiedEmails(false), 2000);
+    } catch {
+      /* ignore */
+    }
+  }
 
   async function copyAll() {
-    const text = `To (BCC): ${recipientList.join(", ")}\r\nSubject: ${subject}\r\n\r\n${body}`;
+    const text = `Bcc: ${recipientList.join(", ")}\r\nSubject: ${subject}\r\n\r\n${body}`;
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
@@ -171,7 +207,7 @@ export default function RfiPage() {
     URL.revokeObjectURL(url);
   }
 
-  const tooManyForMailto = mailto.length > 1900;
+  const multiBatch = batches.length > 1;
 
   if (!ready) return null;
 
@@ -375,12 +411,49 @@ export default function RfiPage() {
           </div>
 
           <div className="card space-y-3 p-5">
-            <a
-              href={mailto}
-              className="block rounded-xl bg-brand-500 px-4 py-2.5 text-center text-sm font-semibold text-ink hover:bg-brand-400"
+            {!multiBatch ? (
+              <a
+                href={batches[0] ? buildMailto(batches[0]) : buildMailto([])}
+                className="block rounded-xl bg-brand-500 px-4 py-2.5 text-center text-sm font-semibold text-ink hover:bg-brand-400"
+              >
+                Open draft in email app
+              </a>
+            ) : (
+              <div className="space-y-2">
+                <p className="rounded-lg border border-amber-400/20 bg-amber-400/5 p-2 text-xs text-amber-200/80">
+                  {recipientList.length} recipients is more than one email draft
+                  can safely hold, so it’s split into {batches.length}. The
+                  easiest path for a big list:{" "}
+                  <strong>Copy all emails</strong> below and paste them into your
+                  own message.
+                </p>
+                {batches.map((b, i) => {
+                  const start =
+                    batches.slice(0, i).reduce((n, x) => n + x.length, 0) + 1;
+                  const end = start + b.length - 1;
+                  return (
+                    <a
+                      key={i}
+                      href={buildMailto(b)}
+                      className="block rounded-xl bg-brand-500 px-4 py-2 text-center text-sm font-semibold text-ink hover:bg-brand-400"
+                    >
+                      Open draft {i + 1} of {batches.length} · suppliers{" "}
+                      {start}–{end}
+                    </a>
+                  );
+                })}
+              </div>
+            )}
+
+            <button
+              onClick={copyEmails}
+              className="w-full rounded-xl border border-brand-400/40 bg-brand-500/10 px-3 py-2 text-sm font-semibold text-brand-200 hover:bg-brand-500/20"
             >
-              Open draft in email app
-            </a>
+              {copiedEmails
+                ? "Copied ✓"
+                : `Copy all emails (${recipientList.length})`}
+            </button>
+
             <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={copyAll}
@@ -397,16 +470,10 @@ export default function RfiPage() {
             </div>
             <p className="text-xs text-slate-400">
               Suppliers go in <strong className="text-slate-200">BCC</strong> so
-              they don’t see each other. The draft opens in your own email app —
-              review, attach your document, and send.
+              they don’t see each other. Drafts open in your own email app —
+              review, attach your document, and send. For large lists, paste the
+              copied emails into your BCC field instead.
             </p>
-            {tooManyForMailto && (
-              <p className="rounded-lg border border-amber-400/20 bg-amber-400/5 p-2 text-xs text-amber-200/80">
-                This RFI is long for a mailto link and may get truncated by your
-                email app. Use <strong>Copy email</strong> and paste into a new
-                message, or send to fewer suppliers at a time.
-              </p>
-            )}
           </div>
         </aside>
       </div>
