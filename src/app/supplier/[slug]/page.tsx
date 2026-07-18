@@ -67,6 +67,14 @@ export default function SupplierPage({
           >
             Visit website ↗
           </a>
+          {supplier.contactEmails?.[0] && (
+            <a
+              href={`mailto:${supplier.contactEmails[0]}`}
+              className="rounded-xl border border-white/15 px-4 py-2 text-sm font-semibold text-white hover:bg-white/5"
+            >
+              {supplier.contactEmails[0]}
+            </a>
+          )}
         </div>
       </div>
 
