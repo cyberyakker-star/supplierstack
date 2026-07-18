@@ -85,7 +85,10 @@ export default function RfiPage() {
       const next = { ...prev };
       for (const s of selected) {
         if (next[s.slug] === undefined)
-          next[s.slug] = s.contactEmail ?? domainEmail(s.website);
+          next[s.slug] =
+            s.contactEmails && s.contactEmails.length
+              ? s.contactEmails.join(", ")
+              : domainEmail(s.website);
       }
       return next;
     });
@@ -135,9 +138,16 @@ export default function RfiPage() {
     return L.join("\r\n");
   }, [req, fileName]);
 
-  const recipientList = selected
-    .map((s) => emails[s.slug]?.trim())
-    .filter(Boolean) as string[];
+  // A supplier's field may hold several addresses ("info@x.com, sales@x.com").
+  // Flatten them all into the BCC list and de-duplicate.
+  const recipientList = Array.from(
+    new Set(
+      selected
+        .flatMap((s) => (emails[s.slug] ?? "").split(/[,;\s]+/))
+        .map((e) => e.trim())
+        .filter((e) => e.includes("@")),
+    ),
+  );
 
   const buildMailto = useCallback(
     (bccList: string[]) => {
